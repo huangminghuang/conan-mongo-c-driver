@@ -5,6 +5,7 @@ env:
      - CONAN_USERNAME: "huangminghuang"
      - CONAN_LOGIN_USERNAME: "huangminghuang"
      - CONAN_CHANNEL: "testing"
+     - CONAN_UPLOAD: "https://api.bintray.com/conan/huangminghuang/conan"
      
 linux: &linux
    os: linux
