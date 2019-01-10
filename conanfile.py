@@ -25,7 +25,7 @@ class MongocdriverConan(ConanFile):
 
     def requirements(self):
         if not tools.os_info.is_macos and not tools.os_info.is_windows:
-            self.requires.add("OpenSSL/1.0.2o@conan/stable")
+            self.requires.add("OpenSSL/1.1.1a@conan/stable")
 
     def source(self):
         tools.get("https://github.com/mongodb/mongo-c-driver/releases/download/{0}/mongo-c-driver-{0}.tar.gz"
@@ -36,6 +36,7 @@ class MongocdriverConan(ConanFile):
                                       '''project (mongo-c-driver C)
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 conan_basic_setup()''')
+        tools.replace_in_file("sources/src/libmongoc/CMakeLists.txt", 'SSL_LIBRARIES ${OPENSSL_LIBRARIES}', 'SSL_LIBRARIES ${OPENSSL_LIBRARIES} dl')
 
     def _configure_cmake(self):
         cmake = CMake(self)
@@ -56,6 +57,7 @@ conan_basic_setup()''')
 
     def package(self):
         self.copy(pattern="COPYING*", dst="licenses", src="sources")
+        self.copy(pattern="lib/cmake/lib*/*", dst=".", src="sources")
 
         # cmake installs all the files
         cmake = self._configure_cmake()
@@ -67,7 +69,7 @@ conan_basic_setup()''')
         libnames = ['mongoc', 'bson']
         self.cpp_info.libs = [ "{}{}-1.0".format(name, lib_suffix) for name in libnames ]
         self.cpp_info.includedirs.extend( ['include/lib{}'.format(name) for name in self.cpp_info.libs ] )
-        self.cpp_info.builddirs = [ "lib/cmake/lib{}".format(name) for name in self.cpp_info.libs ]
+        # self.cpp_info.builddirs = [ "lib/cmake/lib{}".format(name) for name in self.cpp_info.libs ]
         
         if tools.os_info.is_macos:
             self.cpp_info.exelinkflags = ['-framework CoreFoundation', '-framework Security']
