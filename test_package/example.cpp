@@ -11,6 +11,6 @@ int main()
 
     mongoc_cleanup ();
 
-    std::cout << "Bincrafters\n";
+    std::cout << "Hello\n";
     return EXIT_SUCCESS;
 }

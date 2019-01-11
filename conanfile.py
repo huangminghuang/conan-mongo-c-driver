@@ -1,5 +1,5 @@
 from conans import ConanFile, CMake, tools
-import os
+import os, shutil, os.path, glob
 
 class MongocdriverConan(ConanFile):
     name = "mongo-c-driver"
@@ -37,6 +37,14 @@ class MongocdriverConan(ConanFile):
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 conan_basic_setup()''')
         tools.replace_in_file("sources/src/libmongoc/CMakeLists.txt", 'SSL_LIBRARIES ${OPENSSL_LIBRARIES}', 'SSL_LIBRARIES ${OPENSSL_LIBRARIES} dl')
+        tools.replace_in_file("sources/src/libmongoc/CMakeLists.txt", "add_library (mongoc_shared", '''
+if (APPLE)
+  set(CMAKE_MACOS_RPATH 1)
+  set(CMAKE_INSTALL_RPATH "@executable_path")
+else()
+  set(CMAKE_INSTALL_RPATH "$ORIGIN")
+endif()
+add_library (mongoc_shared''')
 
     def _configure_cmake(self):
         cmake = CMake(self)
@@ -58,10 +66,22 @@ conan_basic_setup()''')
     def package(self):
         self.copy(pattern="COPYING*", dst="licenses", src="sources")
         self.copy(pattern="lib/cmake/lib*/*", dst=".", src="sources")
-
+        
         # cmake installs all the files
         cmake = self._configure_cmake()
         cmake.install()
+        
+        if not self.options.shared:
+          # Remove the shared library from a static build, we don't keep them simply because their dependencies are statically linked, 
+          # which are propably not what we wanted.
+          builddir = os.getcwd()
+          package_id = os.path.basename(builddir)
+          package_path = os.path.join('../../package', package_id)
+          
+          shutil.rmtree(os.path.join(package_path, 'lib/cmake/libmongoc-1.0'))
+          shutil.rmtree(os.path.join(package_path,'lib/cmake/libbson-1.0'))
+          [os.remove(x) for x in glob.glob(os.path.join(package_path,"lib/libmongoc-1.0.*"))]
+          [os.remove(x) for x in glob.glob(os.path.join(package_path,"lib/libbson-1.0.*"))]
 
     def package_info(self):
         lib_suffix = "" if self.options["shared"] else "-static"
