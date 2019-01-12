@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8.12)
 project(PackageTest CXX)
 
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
-conan_basic_setup()
+conan_basic_setup(KEEP_RPATHS)
 
 list (FIND CONAN_DEFINES_MONGO-C-DRIVER "-DBSON_STATIC" _index)
 if (${_index} GREATER -1)
