@@ -5,9 +5,34 @@
 |[![Download](https://api.bintray.com/packages/huangminghuang/conan/mongo-c-driver%3Ahuangminghuang/images/download.svg) ](https://bintray.com/huangminghaung/conan/mongo-c-driver%3Ahuangminghuang/_latestVersion)|[![Build status](https://ci.appveyor.com/api/projects/status/github/huangminghuang/conan-mongo-c-driver?svg=true)](https://ci.appveyor.com/project/huangminghuang/conan-mongo-c-driver)|[![Build Status](https://travis-ci.org/huangminghuang/conan-mongo-c-driver.svg)](https://travis-ci.org/huangminghuang/conan-mongo-c-driver)|
 
 
-## Usage Information
+## Basic setup
 
-Unlike the the [Bincrafter recipe for mongo-c-driver](https://bintray.com/bincrafters/public-conan/mongo-c-driver%3Abincrafters/1.11.0%3Astable), this recipe exposes the original libmonogoc-1.0-config.cmake/libbson-1.0-config.cmake installed by mongo-c-driver to useers. The correct usage of the receipe in the CMakeLists.txt should be similar to the following: 
+    $ conan remote add huang https://api.bintray.com/conan/huangminghuang/conan 
+    $ conan install mongo-c-driver/1.10.3@huangminghuang/stable -r huang
+    
+## Project setup
+
+If you handle multiple dependencies in your project is better to add a *conanfile.txt*
+    
+    [requires]
+    mongo-c-driver/1.10.3@huangminghuang/stable
+
+    [options]
+    mongo-c-driver:shared=False
+    
+    [generators]
+    cmake
+
+Complete the installation of requirements for your project running:</small></span>
+
+    conan install . 
+
+Project setup installs the library (and all his dependencies) and generates the files *conanbuildinfo.cmake* with all the 
+paths and variables that you need to link with your dependencies.
+
+## CMake setup
+
+Unlike the the [Bincrafter recipe for mongo-c-driver](https://bintray.com/bincrafters/public-conan/mongo-c-driver%3Abincrafters/1.11.0%3Astable), this recipe exposes the original libmonogoc-1.0-config.cmake/libbson-1.0-config.cmake installed by mongo-c-driver to useers. The correct usage of the receipe in the *CMakeLists.txt* should be similar to the following: 
 
 ```cmake
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
@@ -20,26 +45,3 @@ target_link_libraries(example ${MONGOC_STATIC_LIBRARIES})
 target_compile_definitions(example PRIVATE ${MONGOC_STATIC_DEFINITIONS})
  
 ```
-## Conan.io Information
-
-Huangminghuang packages can be found in the following public Conan repository:
-
-[Huangminghuang Public Conan Repository on Bintray](https://bintray.com/huangminghuang/conan)
-
-*Note: You can click the "Set Me Up" button on the Bintray page above for instructions on using packages from this repository.*
-
-## License Information
-
-This package is hosted on [Bintray](https://bintray.com) and contain Open-Source software which is licensed by the software's maintainers.  For each Open-Source package published, the packaging process obtains the required license files along with the original source files from the maintainer, and includes these license files in the generated Conan packages.
-
-The contents of this GIT repository are completely separate from the software being packaged and therefore licensed separately.  The license for all files contained in this GIT repository are defined in the [LICENSE](LICENSE) file in this repository.  The licenses included with this package can be found in the Conan package directories in the following locations, relative to the Conan Cache root (`~/.conan` by default):
-
-### License(s) for packaged software:
-
-    ~/.conan/data/<pkg_name>/<pkg_version>/huangminghuang/package/<random_package_id>/license/<LICENSE_FILES_HERE>
-
-*Note :   The most common filenames for OSS licenses are `LICENSE` AND `COPYING` without file extensions.*
-
-### License for huangminghuang recipe:
-
-    ~/.conan/data/<pkg_name>/<pkg_version>/huangminghuang/export/LICENSE
