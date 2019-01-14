@@ -1,5 +1,5 @@
 from conans import ConanFile, CMake, tools
-import os, shutil, os.path, glob
+import os
 
 class MongocdriverConan(ConanFile):
     name = "mongo-c-driver"
@@ -45,7 +45,7 @@ class MongocdriverConan(ConanFile):
         cmake.definitions["ENABLE_STATIC"] = "OFF" if self.options.shared else "ON"
         
         if tools.os_info.is_macos:
-          cmake.definitions["CMAKE_MACOSX_RPATH"] = "ON"
+            cmake.definitions["CMAKE_MACOSX_RPATH"] = "ON"
 
         cmake.configure(source_dir="sources")
 
