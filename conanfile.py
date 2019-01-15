@@ -3,7 +3,7 @@ import os
 
 class MongocdriverConan(ConanFile):
     name = "mongo-c-driver"
-    version = "1.10.3"
+    version = "1.13.0"
     description = "A high-performance MongoDB driver for C"
     topics = ("conan", "libmongoc", "mongodb")
     url = "http://github.com/bincrafters/conan-mongo-c-driver"
@@ -19,6 +19,8 @@ class MongocdriverConan(ConanFile):
     requires = 'zlib/1.2.11@conan/stable'
     exports_sources = ["package.patch"]
     generators = "cmake"
+    
+    no_copy_source = True
 
     def configure(self):
         # Because this is pure C
@@ -27,6 +29,7 @@ class MongocdriverConan(ConanFile):
     def requirements(self):
         if not tools.os_info.is_macos and not tools.os_info.is_windows:
             self.requires.add("OpenSSL/1.1.1a@conan/stable")
+        # self.requires.add("icu/63.1@bincrafters/stable")
 
     def source(self):
         tools.get("https://github.com/mongodb/mongo-c-driver/releases/download/{0}/mongo-c-driver-{0}.tar.gz"

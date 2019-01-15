@@ -1,4 +1,5 @@
-import os
+import platform, os
+from conans.client.run_environment import RunEnvironment
 
 from conans import ConanFile, CMake, tools
 
@@ -18,6 +19,11 @@ class MongocdriverTestConan(ConanFile):
         self.copy("*.dll", dst="bin", src="bin")
         
     def test(self):
-        if not tools.cross_building(self.settings):
-            os.chdir("bin")
-            self.run(".%sexample" % os.sep)
+        os.chdir('bin')
+        re = RunEnvironment(self)
+        with tools.environment_append(re.vars):
+            if platform.system() == "Darwin":
+                lpath = os.environ["DYLD_LIBRARY_PATH"]
+                self.run('DYLD_LIBRARY_PATH=%s ./example' % (lpath))
+            else:
+                self.run(".%sexample" % os.sep)

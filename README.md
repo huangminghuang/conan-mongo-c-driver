@@ -8,14 +8,14 @@
 ## Basic setup
 
     $ conan remote add huang https://api.bintray.com/conan/huangminghuang/conan 
-    $ conan install mongo-c-driver/1.10.3@huangminghuang/stable -r huang
+    $ conan install mongo-c-driver/1.13.0@huangminghuang/stable -r huang
     
 ## Project setup
 
 If you handle multiple dependencies in your project is better to add a *conanfile.txt*
     
     [requires]
-    mongo-c-driver/1.10.3@huangminghuang/stable
+    mongo-c-driver/1.13.0@huangminghuang/stable
 
     [options]
     mongo-c-driver:shared=False

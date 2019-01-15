@@ -1,17 +1,26 @@
+commit 8bc2b8030c65425ab5eed1ab16a2d02f9af50d8d
+Author: Huang-Ming Huang <huangh@objectcomputing.com>
+Date:   Mon Jan 14 15:44:47 2019 -0600
+
+    conan patch
+    
+    # Conflicts:
+    #       CMakeLists.txt
+
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 2eeb6cbc7..eb2be8981 100644
+index f7a0dfe92..257c678a0 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -51,6 +51,9 @@ option (ENABLE_RDTSCP
+@@ -53,6 +53,9 @@ set (ENABLE_ICU AUTO CACHE STRING "Enable ICU support, necessary to use non-ASCI
  
  project (mongo-c-driver C)
  
 +include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
-+conan_basic_setup(KEEP_RPATHS)
++conan_basic_setup()
 +
- set (CMAKE_MODULE_PATH
-    ${CMAKE_MODULE_PATH}
-    ${PROJECT_SOURCE_DIR}/build/cmake
+ if (NOT CMAKE_BUILD_TYPE)
+    set (CMAKE_BUILD_TYPE "RelWithDebInfo")
+    message (
 diff --git a/build/cmake/MongoCPackage.cmake b/build/cmake/MongoCPackage.cmake
 index 15bfcca2f..ae4d0e9a0 100644
 --- a/build/cmake/MongoCPackage.cmake
@@ -28,10 +37,59 @@ index 15bfcca2f..ae4d0e9a0 100644
     install_package_config_file ("static-1.0")
  endif ()
 diff --git a/src/libbson/CMakeLists.txt b/src/libbson/CMakeLists.txt
-index f88e251d8..853ea0f79 100644
+index 4bc2cb6d8..6c602e6c9 100644
 --- a/src/libbson/CMakeLists.txt
 +++ b/src/libbson/CMakeLists.txt
-@@ -284,13 +284,14 @@ set (BSON_HEADER_INSTALL_DIR
+@@ -217,6 +217,8 @@ set (HEADERS_FORWARDING
+    ${PROJECT_SOURCE_DIR}/src/bson/forwarding/bson.h
+ )
+ 
++if (NOT ENABLE_STATIC MATCHES "ON|AUTO")
++
+ add_library (bson_shared SHARED ${SOURCES} ${HEADERS} ${HEADERS_FORWARDING})
+ set (CMAKE_CXX_VISIBILITY_PRESET hidden)
+ set_target_properties (bson_shared PROPERTIES COMPILE_DEFINITIONS "BSON_COMPILATION;JSONSL_PARSE_NAN")
+@@ -233,33 +235,32 @@ if (ENABLE_APPLE_FRAMEWORK)
+       PUBLIC_HEADER "${HEADERS}" 
+    )
+ endif ()
++endif(NOT ENABLE_STATIC MATCHES "ON|AUTO")
+ 
+-if (RT_LIBRARY)
+-   target_link_libraries (bson_shared ${RT_LIBRARY})
+-endif ()
+ 
+ find_library (M_LIBRARY m)
+ if (M_LIBRARY)
+-   target_link_libraries (bson_shared ${M_LIBRARY})
+    set (BSON_LIBRARIES ${BSON_LIBRARIES} ${M_LIBRARY})
+ endif ()
+ 
+ set (THREADS_PREFER_PTHREAD_FLAG 1)
+ find_package (Threads REQUIRED)
+-target_link_libraries (bson_shared Threads::Threads)
++
+ if (CMAKE_USE_PTHREADS_INIT)
+    set (BSON_LIBRARIES ${BSON_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
+ endif ()
+ 
+ if (WIN32)
+    # gethostbyname
+-   target_link_libraries (bson_shared ws2_32)
++   # target_link_libraries (bson_shared ws2_32)
+    # Can't find_library () system dependencies
+    # must be handled specially since we can't resolve them
+    set (BSON_SYSTEM_LIBRARIES ${BSON_SYSTEM_LIBRARIES} ws2_32)
+ endif ()
+ 
+-if (ENABLE_STATIC MATCHES "ON|AUTO")
++if (NOT ENABLE_STATIC MATCHES "ON|AUTO")
++   target_link_libraries (bson_shared ${BSON_SYSTEM_LIBRARIES})
++else()
+    add_library (bson_static STATIC ${SOURCES} ${HEADERS} ${HEADERS_FORWARDING})
+    set_target_properties (bson_static PROPERTIES COMPILE_DEFINITIONS "BSON_COMPILATION;BSON_STATIC;JSONSL_PARSE_NAN")
+    set_target_properties (bson_static PROPERTIES VERSION 0.0.0)
+@@ -304,6 +305,7 @@ set (BSON_HEADER_INSTALL_DIR
     "${CMAKE_INSTALL_INCLUDEDIR}/libbson-${BSON_API_VERSION}"
  )
  
@@ -39,15 +97,16 @@ index f88e251d8..853ea0f79 100644
  install (
     TARGETS bson_shared ${EXAMPLES}
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+@@ -311,7 +313,7 @@ install (
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    FRAMEWORK DESTINATION ${CMAKE_INSTALL_BINDIR} 
  )
 -if (ENABLE_STATIC MATCHES "ON|AUTO")
 +else ()
     install (
        TARGETS bson_static ${EXAMPLES}
        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-@@ -319,6 +320,9 @@ endforeach ()
+@@ -352,6 +354,9 @@ endforeach ()
  set (VERSION "${BSON_VERSION}")
  set (prefix "${CMAKE_INSTALL_PREFIX}")
  set (libdir "\${prefix}/lib")
@@ -57,7 +116,7 @@ index f88e251d8..853ea0f79 100644
  configure_file (
     ${CMAKE_CURRENT_SOURCE_DIR}/src/libbson-1.0.pc.in
     ${CMAKE_CURRENT_BINARY_DIR}/src/libbson-1.0.pc
-@@ -331,7 +335,7 @@ install (
+@@ -364,7 +369,7 @@ install (
        ${CMAKE_INSTALL_LIBDIR}/pkgconfig
  )
  
@@ -67,10 +126,10 @@ index f88e251d8..853ea0f79 100644
        ${CMAKE_CURRENT_SOURCE_DIR}/src/libbson-static-1.0.pc.in
        ${CMAKE_CURRENT_BINARY_DIR}/src/libbson-static-1.0.pc
 diff --git a/src/libmongoc/CMakeLists.txt b/src/libmongoc/CMakeLists.txt
-index f1e423876..31d37d757 100644
+index 400dce8ed..a02500797 100644
 --- a/src/libmongoc/CMakeLists.txt
 +++ b/src/libmongoc/CMakeLists.txt
-@@ -492,7 +492,7 @@ if (NOT ENABLE_SSL STREQUAL OFF)
+@@ -530,7 +530,7 @@ if (NOT ENABLE_SSL STREQUAL OFF)
           ${PROJECT_SOURCE_DIR}/src/mongoc/mongoc-stream-tls-openssl-bio.c
           ${PROJECT_SOURCE_DIR}/src/mongoc/mongoc-openssl.c
        )
@@ -79,18 +138,43 @@ index f1e423876..31d37d757 100644
        include_directories (${OPENSSL_INCLUDE_DIR})
        if (WIN32)
           set (SSL_LIBRARIES ${SSL_LIBRARIES} crypt32.lib)
-@@ -571,7 +571,9 @@ set (LIBRARIES
+@@ -607,7 +607,9 @@ set (LIBRARIES
  
  if (WIN32)
     set (LIBRARIES ${LIBRARIES} ws2_32)
 -endif ()
-+elseif (NOT APPLE)
-+  set(CMAKE_INSTALL_RPATH "$ORIGIN")
 +endif()
++
++if (NOT MONGOC_ENABLE_STATIC)
  
- add_library (mongoc_shared SHARED ${SOURCES} ${HEADERS})
+ add_library (mongoc_shared SHARED ${SOURCES} ${HEADERS} ${HEADERS_FORWARDING})
  set_target_properties (mongoc_shared PROPERTIES CMAKE_CXX_VISIBILITY_PRESET hidden)
-@@ -596,8 +598,8 @@ target_link_libraries (mongoc-stat mongoc_shared)
+@@ -618,7 +620,7 @@ target_compile_definitions (mongoc_shared PUBLIC MONGOC_COMPILATION ${BSON_DEFIN
+ set_target_properties (mongoc_shared PROPERTIES VERSION 0.0.0 SOVERSION 0)
+ set_target_properties (mongoc_shared PROPERTIES OUTPUT_NAME "mongoc-${MONGOC_API_VERSION}" PREFIX "lib")
+ 
+-if (MONGOC_ENABLE_STATIC)
++else()
+    add_library (mongoc_static STATIC ${SOURCES} ${HEADERS} ${HEADERS_FORWARDING})
+    target_link_libraries (mongoc_static ${LIBRARIES} ${BSON_STATIC_LIBRARIES})
+    target_include_directories (mongoc_static BEFORE PUBLIC ${BSON_STATIC_INCLUDE_DIRS} ${MONGOC_INTERNAL_INCLUDE_DIRS})
+@@ -627,6 +629,7 @@ if (MONGOC_ENABLE_STATIC)
+    set_target_properties (mongoc_static PROPERTIES OUTPUT_NAME "mongoc-static-${MONGOC_API_VERSION}")
+ endif ()
+ 
++if (NOT MONGOC_ENABLE_STATIC)
+ if (ENABLE_APPLE_FRAMEWORK)
+    set_target_properties (mongoc_shared PROPERTIES 
+       FRAMEWORK TRUE 
+@@ -636,17 +639,17 @@ if (ENABLE_APPLE_FRAMEWORK)
+       OUTPUT_NAME "mongoc"
+       PUBLIC_HEADER "${HEADERS}" 
+    )
+-endif ()
+-
++endif (ENABLE_APPLE_FRAMEWORK)
+ add_executable (mongoc-stat ${PROJECT_SOURCE_DIR}/../../src/tools/mongoc-stat.c)
+ target_link_libraries (mongoc-stat mongoc_shared)
  
  # mongoc-stat works if shared memory performance counters are enabled.
  if (ENABLE_SHM_COUNTERS STREQUAL "ON")
@@ -100,8 +184,11 @@ index f1e423876..31d37d757 100644
 +      RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
     )
  endif ()
++endif(NOT MONGOC_ENABLE_STATIC)
  
-@@ -797,6 +799,8 @@ file (COPY ${PROJECT_SOURCE_DIR}/tests/json DESTINATION ${PROJECT_BINARY_DIR}/te
+ function (mongoc_add_test test use_shared)
+    if (ENABLE_TESTS)
+@@ -870,6 +873,8 @@ file (COPY ${PROJECT_SOURCE_DIR}/tests/json DESTINATION ${PROJECT_BINARY_DIR}/te
  file (COPY ${PROJECT_SOURCE_DIR}/tests/x509gen DESTINATION ${PROJECT_BINARY_DIR}/tests)
  file (COPY ${PROJECT_SOURCE_DIR}/tests/release_files DESTINATION ${PROJECT_BINARY_DIR}/tests)
  
@@ -110,8 +197,8 @@ index f1e423876..31d37d757 100644
  install (
     TARGETS mongoc_shared ${EXAMPLES}
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-@@ -804,9 +808,9 @@ install (
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+@@ -878,9 +883,9 @@ install (
+    FRAMEWORK DESTINATION ${CMAKE_INSTALL_BINDIR} 
  )
  
 -if (MONGOC_ENABLE_STATIC)
@@ -122,7 +209,7 @@ index f1e423876..31d37d757 100644
        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-@@ -846,15 +850,19 @@ foreach (
+@@ -933,15 +938,19 @@ foreach (
     endif ()
  endforeach ()
  
@@ -143,7 +230,7 @@ index f1e423876..31d37d757 100644
     configure_file (
        ${CMAKE_CURRENT_SOURCE_DIR}/src/libmongoc-static-1.0.pc.in
        ${CMAKE_CURRENT_BINARY_DIR}/src/libmongoc-static-1.0.pc
-@@ -865,7 +873,7 @@ if (MONGOC_ENABLE_STATIC)
+@@ -952,7 +961,7 @@ if (MONGOC_ENABLE_STATIC)
     )
  endif ()
  # Deprecated alias for libmongoc-1.0.pc, see CDRIVER-2086.
