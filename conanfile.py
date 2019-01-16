@@ -6,16 +6,18 @@ class MongocdriverConan(ConanFile):
     version = "1.13.0"
     description = "A high-performance MongoDB driver for C"
     topics = ("conan", "libmongoc", "mongodb")
-    url = "http://github.com/bincrafters/conan-mongo-c-driver"
+    url = "http://github.com/huangminghuang/conan-mongo-c-driver"
     homepage = "https://github.com/mongodb/mongo-c-driver"
     author = "Huang-Ming Huang <huangh@objectcomputing.com>"
     license = "MIT"
     exports = ["LICENSE"]
     
+    build_policy = "missing"
+    
     settings = "os", "compiler", "arch", "build_type"
-    options = {"shared": [True, False]}
-    default_options = "shared=False"
-        
+    options = {"shared": [True, False], "with_icu": [True, False]}
+    default_options = "shared=False", "with_icu=False"
+            
     requires = 'zlib/1.2.11@conan/stable'
     exports_sources = ["package.patch"]
     generators = "cmake"
@@ -29,7 +31,8 @@ class MongocdriverConan(ConanFile):
     def requirements(self):
         if not tools.os_info.is_macos and not tools.os_info.is_windows:
             self.requires.add("OpenSSL/1.1.1a@conan/stable")
-        # self.requires.add("icu/63.1@bincrafters/stable")
+        if self.options.with_icu:
+            self.requires.add("icu/63.1@bincrafters/stable")
 
     def source(self):
         tools.get("https://github.com/mongodb/mongo-c-driver/releases/download/{0}/mongo-c-driver-{0}.tar.gz"
@@ -46,11 +49,8 @@ class MongocdriverConan(ConanFile):
         cmake.definitions["ENABLE_BSON"] = "ON"
         cmake.definitions["ENABLE_SASL"] = "OFF"
         cmake.definitions["ENABLE_STATIC"] = "OFF" if self.options.shared else "ON"
-        
-        if tools.os_info.is_macos:
-            cmake.definitions["CMAKE_MACOSX_RPATH"] = "ON"
 
-        cmake.configure(source_dir="sources")
+        cmake.configure(source_dir=os.path.join(self.source_folder,"sources"))
 
         return cmake
 

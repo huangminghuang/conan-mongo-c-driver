@@ -1,4 +1,4 @@
-commit 8bc2b8030c65425ab5eed1ab16a2d02f9af50d8d
+commit 3b1b71a399ff0e70b4ec6d31084872f667d983f9
 Author: Huang-Ming Huang <huangh@objectcomputing.com>
 Date:   Mon Jan 14 15:44:47 2019 -0600
 
@@ -126,7 +126,7 @@ index 4bc2cb6d8..6c602e6c9 100644
        ${CMAKE_CURRENT_SOURCE_DIR}/src/libbson-static-1.0.pc.in
        ${CMAKE_CURRENT_BINARY_DIR}/src/libbson-static-1.0.pc
 diff --git a/src/libmongoc/CMakeLists.txt b/src/libmongoc/CMakeLists.txt
-index 400dce8ed..a02500797 100644
+index 400dce8ed..bc78897eb 100644
 --- a/src/libmongoc/CMakeLists.txt
 +++ b/src/libmongoc/CMakeLists.txt
 @@ -530,7 +530,7 @@ if (NOT ENABLE_SSL STREQUAL OFF)
@@ -138,7 +138,7 @@ index 400dce8ed..a02500797 100644
        include_directories (${OPENSSL_INCLUDE_DIR})
        if (WIN32)
           set (SSL_LIBRARIES ${SSL_LIBRARIES} crypt32.lib)
-@@ -607,7 +607,9 @@ set (LIBRARIES
+@@ -607,26 +607,29 @@ set (LIBRARIES
  
  if (WIN32)
     set (LIBRARIES ${LIBRARIES} ws2_32)
@@ -149,7 +149,11 @@ index 400dce8ed..a02500797 100644
  
  add_library (mongoc_shared SHARED ${SOURCES} ${HEADERS} ${HEADERS_FORWARDING})
  set_target_properties (mongoc_shared PROPERTIES CMAKE_CXX_VISIBILITY_PRESET hidden)
-@@ -618,7 +620,7 @@ target_compile_definitions (mongoc_shared PUBLIC MONGOC_COMPILATION ${BSON_DEFIN
+ target_link_libraries (mongoc_shared ${LIBRARIES} ${BSON_LIBRARIES})
+ target_include_directories (mongoc_shared BEFORE PUBLIC ${BSON_INCLUDE_DIRS} ${MONGOC_INTERNAL_INCLUDE_DIRS})
+-target_compile_definitions (mongoc_shared PUBLIC MONGOC_COMPILATION ${BSON_DEFINITIONS})
++target_compile_definitions (mongoc_shared PUBLIC MONGOC_COMPILATION ${BSON_DEFINITIONS} ${CONAN_COMPILE_DEFINITIONS_ICU})
+ 
  set_target_properties (mongoc_shared PROPERTIES VERSION 0.0.0 SOVERSION 0)
  set_target_properties (mongoc_shared PROPERTIES OUTPUT_NAME "mongoc-${MONGOC_API_VERSION}" PREFIX "lib")
  
@@ -158,7 +162,9 @@ index 400dce8ed..a02500797 100644
     add_library (mongoc_static STATIC ${SOURCES} ${HEADERS} ${HEADERS_FORWARDING})
     target_link_libraries (mongoc_static ${LIBRARIES} ${BSON_STATIC_LIBRARIES})
     target_include_directories (mongoc_static BEFORE PUBLIC ${BSON_STATIC_INCLUDE_DIRS} ${MONGOC_INTERNAL_INCLUDE_DIRS})
-@@ -627,6 +629,7 @@ if (MONGOC_ENABLE_STATIC)
+-   target_compile_definitions (mongoc_static PUBLIC MONGOC_COMPILATION MONGOC_STATIC ${BSON_STATIC_DEFINITIONS})
++   target_compile_definitions (mongoc_static PUBLIC MONGOC_COMPILATION MONGOC_STATIC ${BSON_STATIC_DEFINITIONS} ${CONAN_COMPILE_DEFINITIONS_ICU})
+    set_target_properties (mongoc_static PROPERTIES VERSION 0.0.0)
     set_target_properties (mongoc_static PROPERTIES OUTPUT_NAME "mongoc-static-${MONGOC_API_VERSION}")
  endif ()
  

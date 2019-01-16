@@ -2,7 +2,7 @@
 
 | Bintray | Windows | Linux & macOS |
 |:--------:|:---------:|:-----------------:|
-|[![Download](https://api.bintray.com/packages/huangminghuang/conan/mongo-c-driver%3Ahuangminghuang/images/download.svg) ](https://bintray.com/huangminghaung/conan/mongo-c-driver%3Ahuangminghuang/_latestVersion)|[![Build status](https://ci.appveyor.com/api/projects/status/github/huangminghuang/conan-mongo-c-driver?svg=true)](https://ci.appveyor.com/project/huangminghuang/conan-mongo-c-driver)|[![Build Status](https://travis-ci.com/huangminghuang/conan-mongo-c-driver.svg?branch=master)](https://travis-ci.org/huangminghuang/conan-mongo-c-driver)|
+| [ ![Download](https://api.bintray.com/packages/huangminghuang/conan/mongo-c-driver%3Ahuangminghuang/images/download.svg) ](https://bintray.com/huangminghuang/conan/mongo-c-driver%3Ahuangminghuang/_latestVersion)|[![Build status](https://ci.appveyor.com/api/projects/status/github/huangminghuang/conan-mongo-c-driver?svg=true)](https://ci.appveyor.com/project/huangminghuang/conan-mongo-c-driver)|[![Build Status](https://travis-ci.com/huangminghuang/conan-mongo-c-driver.svg?branch=master)](https://travis-ci.com/huangminghuang/conan-mongo-c-driver)|
 
 
 ## Basic setup
@@ -32,7 +32,7 @@ paths and variables that you need to link with your dependencies.
 
 ## CMake setup
 
-Unlike the the [Bincrafter recipe for mongo-c-driver](https://bintray.com/bincrafters/public-conan/mongo-c-driver%3Abincrafters/1.11.0%3Astable), this recipe exposes the original libmonogoc-1.0-config.cmake/libbson-1.0-config.cmake installed by mongo-c-driver to useers. The correct usage of the receipe in the *CMakeLists.txt* should be similar to the following: 
+Unlike the the [Bincrafter recipe for mongo-c-driver](https://bintray.com/bincrafters/public-conan/mongo-c-driver%3Abincrafters/1.11.0%3Astable), this recipe exposes the original libmonogoc-1.0-config.cmake/libbson-1.0-config.cmake installed by mongo-c-driver to users. The correct usage of the receipe in the *CMakeLists.txt* should be similar to the following: 
 
 ```cmake
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
