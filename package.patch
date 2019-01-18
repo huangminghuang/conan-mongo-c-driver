@@ -1,4 +1,4 @@
-commit ddce62a627fac8925ef3f53c5ddd8943990d147e
+commit 828edd62e24e3e30a1c97664218a230dc037e572
 Author: Huang-Ming Huang <huangh@objectcomputing.com>
 Date:   Mon Jan 14 15:44:47 2019 -0600
 
@@ -7,6 +7,20 @@ Date:   Mon Jan 14 15:44:47 2019 -0600
     # Conflicts:
     #       CMakeLists.txt
 
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index f7a0dfe92..e33ab2106 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -52,7 +52,8 @@ option (ENABLE_APPLE_FRAMEWORK "Build libraries as frameworks on darwin platform
+ set (ENABLE_ICU AUTO CACHE STRING "Enable ICU support, necessary to use non-ASCII usernames or passwords, default AUTO.")
+ 
+ project (mongo-c-driver C)
+-
++include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
++conan_basic_setup()
+ if (NOT CMAKE_BUILD_TYPE)
+    set (CMAKE_BUILD_TYPE "RelWithDebInfo")
+    message (
 diff --git a/build/cmake/MongoCPackage.cmake b/build/cmake/MongoCPackage.cmake
 index 15bfcca2f..ae4d0e9a0 100644
 --- a/build/cmake/MongoCPackage.cmake
@@ -112,7 +126,7 @@ index 4bc2cb6d8..6c602e6c9 100644
        ${CMAKE_CURRENT_SOURCE_DIR}/src/libbson-static-1.0.pc.in
        ${CMAKE_CURRENT_BINARY_DIR}/src/libbson-static-1.0.pc
 diff --git a/src/libmongoc/CMakeLists.txt b/src/libmongoc/CMakeLists.txt
-index 400dce8ed..5d7247a75 100644
+index 400dce8ed..2efcadf7f 100644
 --- a/src/libmongoc/CMakeLists.txt
 +++ b/src/libmongoc/CMakeLists.txt
 @@ -52,7 +52,8 @@ configure_file (
@@ -120,8 +134,8 @@ index 400dce8ed..5d7247a75 100644
  if (ENABLE_ZLIB MATCHES "SYSTEM|AUTO")
     message (STATUS "Searching for zlib CMake packages")
 -   include (FindZLIB)
-+   set(CMAKE_MODULE_PATH ${CMAKE_BINARY_DIR} ${CMAKE_MODULE_PATH})
-+   find_package (Zlib)
++   set(CMAKE_MODULE_PATH "${CMAKE_BINARY_DIR}" "${CMAKE_MODULE_PATH}")   
++   find_package (zlib)
     if (ZLIB_FOUND)
        message ("--   zlib found version \"${ZLIB_VERSION_STRING}\"")
        message ("--   zlib include path \"${ZLIB_INCLUDE_DIRS}\"")

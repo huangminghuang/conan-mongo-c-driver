@@ -20,7 +20,7 @@ class MongocdriverConan(ConanFile):
             
     requires = 'zlib/1.2.11@conan/stable'
     exports_sources = ["package.patch"]
-    generators = "cmake_find_package"
+    generators = "cmake","cmake_find_package"
     
     no_copy_source = True
 

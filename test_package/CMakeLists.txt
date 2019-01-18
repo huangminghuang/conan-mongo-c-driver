@@ -4,6 +4,10 @@ project(PackageTest CXX)
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 conan_basic_setup(TARGETS)
 
+if (CONAN_SETTINGS_ARCH STREQUAL "x86")
+  set(CMAKE_SIZEOF_VOID_P 4)
+endif()
+
 list (FIND CONAN_DEFINES_MONGO-C-DRIVER "-DBSON_STATIC" _index)
 if (${_index} GREATER -1)
   set(LIB_SUFFIX _STATIC)
