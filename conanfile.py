@@ -66,7 +66,7 @@ class MongocdriverConan(ConanFile):
         cmake.install()
 
     def package_info(self):
-        lib_suffix = "" if self.options["shared"] else "-static"
+        lib_suffix = "" if self.options.shared else "-static"
 
         libnames = ['mongoc', 'bson']
         self.cpp_info.libs = [ "{}{}-1.0".format(name, lib_suffix) for name in libnames ]
