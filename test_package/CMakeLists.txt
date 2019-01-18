@@ -1,8 +1,8 @@
-cmake_minimum_required(VERSION 2.8.12)
+cmake_minimum_required(VERSION 3.1.2)
 project(PackageTest CXX)
 
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
-conan_basic_setup()
+conan_basic_setup(TARGETS)
 
 list (FIND CONAN_DEFINES_MONGO-C-DRIVER "-DBSON_STATIC" _index)
 if (${_index} GREATER -1)
@@ -22,3 +22,9 @@ add_executable(example example.cpp)
 target_include_directories(example PRIVATE ${MONGOC${LIB_SUFFIX}_INCLUDE_DIRS})
 target_link_libraries(example ${MONGOC${LIB_SUFFIX}_LIBRARIES})
 target_compile_definitions(example PRIVATE ${MONGOC${LIB_SUFFIX}_DEFINITIONS})
+
+
+add_executable(example2 example.cpp)
+target_link_libraries(example2 CONAN_PKG::mongo-c-driver)
+
+

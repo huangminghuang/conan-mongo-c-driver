@@ -20,7 +20,7 @@ class MongocdriverConan(ConanFile):
             
     requires = 'zlib/1.2.11@conan/stable'
     exports_sources = ["package.patch"]
-    generators = "cmake"
+    generators = "cmake_find_package"
     
     no_copy_source = True
 
@@ -70,7 +70,7 @@ class MongocdriverConan(ConanFile):
 
         libnames = ['mongoc', 'bson']
         self.cpp_info.libs = [ "{}{}-1.0".format(name, lib_suffix) for name in libnames ]
-        self.cpp_info.includedirs.extend( ['include/lib{}'.format(name) for name in self.cpp_info.libs ] )
+        self.cpp_info.includedirs.extend( ['include/libmongoc-1.0', 'include/libbson-1.0' ] )
         
         if tools.os_info.is_macos:
             self.cpp_info.exelinkflags = ['-framework CoreFoundation', '-framework Security']
