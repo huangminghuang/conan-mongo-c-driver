@@ -21,6 +21,10 @@ class MongocdriverConan(ConanFile):
     requires = 'zlib/1.2.11@conan/stable'
     exports_sources = ["package.patch"]
     generators = "cmake","cmake_find_package"
+    # cmake_find_package generator is required for `find_package(zlib)` to work correctly; otherwise, find_package(zlib) would
+    #  use the *.pc files from pkg-config. However the *.pc files hard-code the path name inside which make it unusable for distribution. 
+    # 
+    # camke generator is required for cross compiling x86 target on x86-64 platform.
     
     no_copy_source = True
 
