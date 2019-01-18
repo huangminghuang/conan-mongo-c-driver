@@ -1,4 +1,4 @@
-commit 828edd62e24e3e30a1c97664218a230dc037e572
+commit 6671c8cac9752766c044ea0904129ca71628f423
 Author: Huang-Ming Huang <huangh@objectcomputing.com>
 Date:   Mon Jan 14 15:44:47 2019 -0600
 
@@ -8,16 +8,17 @@ Date:   Mon Jan 14 15:44:47 2019 -0600
     #       CMakeLists.txt
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index f7a0dfe92..e33ab2106 100644
+index f7a0dfe92..59764f965 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -52,7 +52,8 @@ option (ENABLE_APPLE_FRAMEWORK "Build libraries as frameworks on darwin platform
- set (ENABLE_ICU AUTO CACHE STRING "Enable ICU support, necessary to use non-ASCII usernames or passwords, default AUTO.")
+@@ -53,6 +53,10 @@ set (ENABLE_ICU AUTO CACHE STRING "Enable ICU support, necessary to use non-ASCI
  
  project (mongo-c-driver C)
--
+ 
 +include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 +conan_basic_setup()
++set(CMAKE_MODULE_PATH "${CMAKE_BINARY_DIR}" "${CMAKE_MODULE_PATH}")
++
  if (NOT CMAKE_BUILD_TYPE)
     set (CMAKE_BUILD_TYPE "RelWithDebInfo")
     message (
@@ -126,20 +127,19 @@ index 4bc2cb6d8..6c602e6c9 100644
        ${CMAKE_CURRENT_SOURCE_DIR}/src/libbson-static-1.0.pc.in
        ${CMAKE_CURRENT_BINARY_DIR}/src/libbson-static-1.0.pc
 diff --git a/src/libmongoc/CMakeLists.txt b/src/libmongoc/CMakeLists.txt
-index 400dce8ed..2efcadf7f 100644
+index 400dce8ed..fe26c0c49 100644
 --- a/src/libmongoc/CMakeLists.txt
 +++ b/src/libmongoc/CMakeLists.txt
-@@ -52,7 +52,8 @@ configure_file (
+@@ -52,7 +52,7 @@ configure_file (
  )
  if (ENABLE_ZLIB MATCHES "SYSTEM|AUTO")
     message (STATUS "Searching for zlib CMake packages")
 -   include (FindZLIB)
-+   set(CMAKE_MODULE_PATH "${CMAKE_BINARY_DIR}" "${CMAKE_MODULE_PATH}")   
 +   find_package (zlib)
     if (ZLIB_FOUND)
        message ("--   zlib found version \"${ZLIB_VERSION_STRING}\"")
        message ("--   zlib include path \"${ZLIB_INCLUDE_DIRS}\"")
-@@ -530,7 +531,7 @@ if (NOT ENABLE_SSL STREQUAL OFF)
+@@ -530,7 +530,7 @@ if (NOT ENABLE_SSL STREQUAL OFF)
           ${PROJECT_SOURCE_DIR}/src/mongoc/mongoc-stream-tls-openssl-bio.c
           ${PROJECT_SOURCE_DIR}/src/mongoc/mongoc-openssl.c
        )
@@ -148,7 +148,7 @@ index 400dce8ed..2efcadf7f 100644
        include_directories (${OPENSSL_INCLUDE_DIR})
        if (WIN32)
           set (SSL_LIBRARIES ${SSL_LIBRARIES} crypt32.lib)
-@@ -607,26 +608,29 @@ set (LIBRARIES
+@@ -607,26 +607,29 @@ set (LIBRARIES
  
  if (WIN32)
     set (LIBRARIES ${LIBRARIES} ws2_32)
@@ -182,7 +182,7 @@ index 400dce8ed..2efcadf7f 100644
  if (ENABLE_APPLE_FRAMEWORK)
     set_target_properties (mongoc_shared PROPERTIES 
        FRAMEWORK TRUE 
-@@ -636,17 +640,17 @@ if (ENABLE_APPLE_FRAMEWORK)
+@@ -636,17 +639,17 @@ if (ENABLE_APPLE_FRAMEWORK)
        OUTPUT_NAME "mongoc"
        PUBLIC_HEADER "${HEADERS}" 
     )
@@ -204,7 +204,7 @@ index 400dce8ed..2efcadf7f 100644
  
  function (mongoc_add_test test use_shared)
     if (ENABLE_TESTS)
-@@ -870,6 +874,8 @@ file (COPY ${PROJECT_SOURCE_DIR}/tests/json DESTINATION ${PROJECT_BINARY_DIR}/te
+@@ -870,6 +873,8 @@ file (COPY ${PROJECT_SOURCE_DIR}/tests/json DESTINATION ${PROJECT_BINARY_DIR}/te
  file (COPY ${PROJECT_SOURCE_DIR}/tests/x509gen DESTINATION ${PROJECT_BINARY_DIR}/tests)
  file (COPY ${PROJECT_SOURCE_DIR}/tests/release_files DESTINATION ${PROJECT_BINARY_DIR}/tests)
  
@@ -213,7 +213,7 @@ index 400dce8ed..2efcadf7f 100644
  install (
     TARGETS mongoc_shared ${EXAMPLES}
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-@@ -878,9 +884,9 @@ install (
+@@ -878,9 +883,9 @@ install (
     FRAMEWORK DESTINATION ${CMAKE_INSTALL_BINDIR} 
  )
  
@@ -225,7 +225,7 @@ index 400dce8ed..2efcadf7f 100644
        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-@@ -933,15 +939,19 @@ foreach (
+@@ -933,15 +938,19 @@ foreach (
     endif ()
  endforeach ()
  
@@ -246,7 +246,7 @@ index 400dce8ed..2efcadf7f 100644
     configure_file (
        ${CMAKE_CURRENT_SOURCE_DIR}/src/libmongoc-static-1.0.pc.in
        ${CMAKE_CURRENT_BINARY_DIR}/src/libmongoc-static-1.0.pc
-@@ -952,7 +962,7 @@ if (MONGOC_ENABLE_STATIC)
+@@ -952,7 +961,7 @@ if (MONGOC_ENABLE_STATIC)
     )
  endif ()
  # Deprecated alias for libmongoc-1.0.pc, see CDRIVER-2086.
