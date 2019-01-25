@@ -1,4 +1,4 @@
-commit 6671c8cac9752766c044ea0904129ca71628f423
+commit ad880e38f094341557016ef98def0361e4187622
 Author: Huang-Ming Huang <huangh@objectcomputing.com>
 Date:   Mon Jan 14 15:44:47 2019 -0600
 
@@ -38,7 +38,7 @@ index 15bfcca2f..ae4d0e9a0 100644
     install_package_config_file ("static-1.0")
  endif ()
 diff --git a/src/libbson/CMakeLists.txt b/src/libbson/CMakeLists.txt
-index 4bc2cb6d8..6c602e6c9 100644
+index 4bc2cb6d8..b3ba3615a 100644
 --- a/src/libbson/CMakeLists.txt
 +++ b/src/libbson/CMakeLists.txt
 @@ -217,6 +217,8 @@ set (HEADERS_FORWARDING
@@ -107,7 +107,17 @@ index 4bc2cb6d8..6c602e6c9 100644
     install (
        TARGETS bson_static ${EXAMPLES}
        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-@@ -352,6 +354,9 @@ endforeach ()
+@@ -338,7 +340,8 @@ endif ()
+ 
+ set (LIBBSON_LIBRARIES "")
+ foreach (_lib ${CMAKE_C_IMPLICIT_LINK_LIBRARIES} ${BSON_LIBRARIES})
+-   if (_lib MATCHES ".*/.*" OR _lib MATCHES "^-")
++   if (_lib MATCHES "\.so$")
++   elseif (_lib MATCHES ".*/.*" OR _lib MATCHES "^-")
+       set (LIBBSON_LIBRARIES "${LIBBSON_LIBRARIES} ${_lib}")
+    else ()
+       set (LIBBSON_LIBRARIES "${LIBBSON_LIBRARIES} -l${_lib}")
+@@ -352,6 +355,9 @@ endforeach ()
  set (VERSION "${BSON_VERSION}")
  set (prefix "${CMAKE_INSTALL_PREFIX}")
  set (libdir "\${prefix}/lib")
@@ -117,7 +127,7 @@ index 4bc2cb6d8..6c602e6c9 100644
  configure_file (
     ${CMAKE_CURRENT_SOURCE_DIR}/src/libbson-1.0.pc.in
     ${CMAKE_CURRENT_BINARY_DIR}/src/libbson-1.0.pc
-@@ -364,7 +369,7 @@ install (
+@@ -364,7 +370,7 @@ install (
        ${CMAKE_INSTALL_LIBDIR}/pkgconfig
  )
  
@@ -126,6 +136,30 @@ index 4bc2cb6d8..6c602e6c9 100644
     configure_file (
        ${CMAKE_CURRENT_SOURCE_DIR}/src/libbson-static-1.0.pc.in
        ${CMAKE_CURRENT_BINARY_DIR}/src/libbson-static-1.0.pc
+diff --git a/src/libbson/build/cmake/libbson-static-1.0-config.cmake.in b/src/libbson/build/cmake/libbson-static-1.0-config.cmake.in
+index 49b022ce7..386882139 100644
+--- a/src/libbson/build/cmake/libbson-static-1.0-config.cmake.in
++++ b/src/libbson/build/cmake/libbson-static-1.0-config.cmake.in
+@@ -29,8 +29,19 @@ find_library (BSON_STATIC_LIBRARY bson-static-1.0 PATHS "@PACKAGE_LIBRARY_INSTAL
+ 
+ set (BSON_STATIC_LIBRARIES ${BSON_STATIC_LIBRARY})
+ 
++find_library (LIBRT rt)
++find_library (LIBM m)
++
+ foreach (LIB @LIBBSON_LIBRARIES@)
+     list (APPEND BSON_STATIC_LIBRARIES ${LIB})
+ endforeach ()
+ 
++if (LIBRT)
++  list (APPEND BSON_STATIC_LIBRARIES ${LIBRT})
++endif(LIBRT)
++
++if (LIBM)
++  list (APPEND BSON_STATIC_LIBRARIES ${LIBM})
++endif(LIBM)
++
+ set (BSON_STATIC_DEFINITIONS BSON_STATIC)
 diff --git a/src/libmongoc/CMakeLists.txt b/src/libmongoc/CMakeLists.txt
 index 400dce8ed..fe26c0c49 100644
 --- a/src/libmongoc/CMakeLists.txt
